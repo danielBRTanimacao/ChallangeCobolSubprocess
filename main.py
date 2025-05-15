@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 import subprocess
 from pathlib import Path
 
+from utils.validators import result_validation
+
 app = Flask(__name__)
 
 @app.post("/api/deposit")
@@ -30,11 +32,7 @@ def deposit_value():
                 text=True
             )
 
-            if compile_result.returncode != 0:
-                return jsonify({
-                    "erro": "Erro ao compilar o COBOL",
-                    "detail": compile_result.stderr.strip()
-                }), 500
+            result_validation(compile_result, "Erro ao compilar o COBOL")
             
             response_result = subprocess.run(
                 ["./backUrubu", *deposit_args],
@@ -44,11 +42,7 @@ def deposit_value():
                 text=True
             )
 
-            if response_result.returncode != 0:
-                return jsonify({
-                    "erro": "Erro ao executar o COBOL",
-                    "detail": response_result.stderr.strip()
-                }), 500
+            result_validation(response_result, "Erro ao executar o COBOL")
             
             response_final = float(response_result.stdout.strip())
 
