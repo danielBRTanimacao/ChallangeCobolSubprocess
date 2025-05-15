@@ -8,13 +8,16 @@ app = Flask(__name__)
 def deposit_value():
     data = request.get_json()
 
-    if data and "deposit" in data and "days" in data: 
+    if data and "deposit" in data: 
         try:
             float(data["deposit"])
-            int(data["days"])
-        except (ValueError, TypeError) as e:
-            return jsonify({"error": "Valores invalidos!"})
-        deposit = [str(data["deposit"]), str(data["days"])]
+            days = int(data["days"]) if "days" in data else 30
+            if days < 0 or days > 30:
+                return jsonify({"error": "O número de dias deve ser entre 0 e 30."}), 400
+        except (ValueError, TypeError):
+            return jsonify({"error": "Valores inválidos!"}), 400
+        
+        deposit_args = [str(data["deposit"]), str(days)]
         
         try:
             COBOL_DIR = Path(__file__).resolve().parent / "subprocess"
@@ -28,15 +31,13 @@ def deposit_value():
             )
 
             if compile_result.returncode != 0:
-                return jsonify(
-                    {   
-                        "erro": "Erro ao compilar o COBOL",
-                        "detail": compile_result.stderr.strip()
-                    }
-                ), 500
+                return jsonify({
+                    "erro": "Erro ao compilar o COBOL",
+                    "detail": compile_result.stderr.strip()
+                }), 500
             
             response_result = subprocess.run(
-                ["./backUrubu", *deposit],
+                ["./backUrubu", *deposit_args],
                 cwd=COBOL_DIR,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -44,22 +45,20 @@ def deposit_value():
             )
 
             if response_result.returncode != 0:
-                return jsonify(
-                    {   
-                        "erro": "Erro ao executr o COBOL",
-                        "detail": compile_result.stderr.strip()
-                    }
-                ), 500
+                return jsonify({
+                    "erro": "Erro ao executar o COBOL",
+                    "detail": response_result.stderr.strip()
+                }), 500
             
             response_final = float(response_result.stdout.strip())
 
             return jsonify({
-                "message": f"Apos {data['days']} dias, o valor que você vai receber é R${response_final:.2f}"
+                "message": f"Após {days} dias, o valor que você vai receber é R${response_final:.2f}"
             })
-        except TypeError as e:
-            return jsonify({"error": e})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
 
-    return jsonify({"error": "Não foi possivel depositar o valor!"})
+    return jsonify({"error": "Não foi possível processar os dados!"}), 400
 
 if __name__ == "__main__":
     app.run(debug=True)
