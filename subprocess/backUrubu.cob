@@ -3,27 +3,31 @@
 
        data division.
        working-storage section.
-           01 user-str          PIC X(20).
-           01 days-str          PIC X(20).
-           01 user-value        PIC 9(5)V99.
-           01 days              PIC 9(5)V99 VALUE 30.
-           01 result            PIC 9(7)V99.
-           01 calc1             PIC 9(7)V99.
-           01 calc2             PIC 9(7)V99.
+           01 cmd-line        PIC X(80) VALUE SPACES.
+           01 arg1-str        PIC X(20) VALUE SPACES.
+           01 arg2-str        PIC X(20) VALUE SPACES.
+           01 user-value      PIC 9(5)V99.
+           01 days            PIC 9(3)V99 VALUE 30.
+           01 result          PIC 9(9)V99.
+           01 calc            PIC 9(9)V99.
 
        procedure division.
-           ACCEPT user-str FROM COMMAND-LINE
-           ACCEPT days-str FROM COMMAND-LINE
+           ACCEPT cmd-line FROM COMMAND-LINE
 
-           MOVE FUNCTION NUMVAL(user-str) TO user-value
+           UNSTRING cmd-line
+               DELIMITED BY SPACE
+               INTO arg1-str
+                    arg2-str
+           END-UNSTRING
 
-           IF days-str NOT = SPACES
-               MOVE FUNCTION NUMVAL(days-str) TO days
+           MOVE FUNCTION NUMVAL(arg1-str) TO user-value
+
+           IF arg2-str NOT = SPACES
+               MOVE FUNCTION NUMVAL(arg2-str) TO days
            END-IF
 
-           COMPUTE calc1 = user-value / 100
-           COMPUTE calc2 = calc1 * 33.33
-           COMPUTE result = calc2 * days
+           COMPUTE calc = (user-value / 100 * 33.33) * days
+           MOVE calc TO result
 
            DISPLAY result
            STOP RUN.
