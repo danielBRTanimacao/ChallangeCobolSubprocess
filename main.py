@@ -1,14 +1,18 @@
-from flask import Flask
+from flask import Flask, request, jsonify
+import subprocess
 
 app = Flask(__name__)
 
-@app.route("/api/withdraw", methods=["GET"])
-def withdraw_value():
-    return "1"
-
-@app.route("/api/deposit", methods=["POST"])
+@app.post("/api/deposit")
 def deposit_value():
-    return "1"
+    data = request.get_json()
+
+    if data and "deposit" in data: 
+        subprocess.run(["cd ./subprocess && cobc -x backUrubu.cob"])
+        # enviar para o backUrubu
+        return jsonify({"message": f"Valor foi depositado R${data["deposit"]:.2f}"})
+
+    return jsonify({"error": "Não foi possivel depositar o valor!"})
 
 if __name__ == "__main__":
     app.run(debug=True)
