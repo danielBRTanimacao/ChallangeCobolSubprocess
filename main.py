@@ -47,7 +47,7 @@ def deposit_value():
             response_final = float(response_result.stdout.strip())
 
             return jsonify({
-                "message": f"Após {days} dias, o valor que você vai receber é R${response_final:.2f}"
+                "message": f"Após {days} dias, o valor que você vai receber é R${round(response_final):.2f}"
             })
         except Exception as e:
             return jsonify({"error": str(e)}), 500
