@@ -1,16 +1,17 @@
-       identification division.
-       program-id. backUrubu.
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. backUrubu.
 
-       data division.
-       working-storage section.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
            01 cmd-line        PIC X(80) VALUE SPACES.
            01 arg1-str        PIC X(20) VALUE SPACES.
            01 arg2-str        PIC X(20) VALUE SPACES.
            01 user-value      PIC 9(5)V99.
            01 days            PIC 9(3)V99 VALUE 30.
            01 result          PIC 9(9)V99.
+           01 invalid-result  PIC X(9) VALUE "Invalid.".
            01 calc            PIC 9(9)V99.
-
+           01 cpf-digited     PIC X(11).
        procedure division.
            ACCEPT cmd-line FROM COMMAND-LINE
 
