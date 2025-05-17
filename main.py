@@ -8,8 +8,6 @@ app = Flask(__name__)
 
 @app.post("/api/deposit")
 def deposit_value():
-    CPF_TEST_VALIDATED: str = "39601449035"
-
     data = request.get_json()
 
     if data and "deposit" in data and "cpf" in data: 

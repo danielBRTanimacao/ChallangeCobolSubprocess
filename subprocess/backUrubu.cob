@@ -9,8 +9,8 @@
            01 user-value      PIC 9(5)V99.
            01 days            PIC 9(3)V99 VALUE 30.
            01 result          PIC 9(9)V99.
-           01 invalid-result  PIC X(9) VALUE 'true'.
            01 calc            PIC 9(9)V99.
+           77 WS-STATUS       PIC 9.
            01 cpf-digited     PIC X(11) VALUE SPACES.
        procedure division.
            ACCEPT cmd-line FROM COMMAND-LINE
@@ -22,18 +22,25 @@
                     cpf-digited
            END-UNSTRING
 
+           CALL 'cpf_validator' USING cpf-digited, WS-STATUS.
+             
+           IF WS-STATUS = 1 THEN
+                MOVE FUNCTION NUMVAL(arg1-str) TO user-value
+
+                IF arg2-str NOT = SPACES
+                    MOVE FUNCTION NUMVAL(arg2-str) TO days
+                END-IF
+     
+                COMPUTE calc = (user-value / 100 * 33.33) * days
+                MOVE calc TO result
+                
+                DISPLAY result
+           ELSE
+              DISPLAY 'true'
+           END-IF.
+
+           stop run.
+
            
-           DISPLAY invalid-result
-           STOP RUN.
 
-           MOVE FUNCTION NUMVAL(arg1-str) TO user-value
-
-           IF arg2-str NOT = SPACES
-               MOVE FUNCTION NUMVAL(arg2-str) TO days
-           END-IF
-
-           COMPUTE calc = (user-value / 100 * 33.33) * days
-           MOVE calc TO result
            
-           DISPLAY result
-           STOP RUN.
