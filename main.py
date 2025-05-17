@@ -51,7 +51,13 @@ def deposit_value():
 
             result_validation(response_result, "Erro ao executar o COBOL")
             
+            if response_result.stdout.strip() == "true":
+                return jsonify({
+                "error": f"Usuario CPF: {data["cpf"]} invalido!"
+            })
+            
             response_final = float(response_result.stdout.strip())
+            
 
             return jsonify({
                 "message": f"Usuario CPF: {data["cpf"]} após {days} dias, o valor que você vai receber é R${round(response_final):.2f}"
